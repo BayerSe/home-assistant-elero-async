@@ -68,6 +68,8 @@ CONF_PARITY: Final = "parity"
 CONF_STOP_BITS: Final = "stop_bits"
 CONF_REGULAR_INTERVAL: Final = "regular_interval"
 CONF_FAST_INTERVAL: Final = "fast_interval"
+CONF_DISABLE_REGULAR_INTERVAL: Final = "disable_regular_interval"
+CONF_DISABLE_FAST_INTERVAL: Final = "disable_fast_interval"
 
 # =============================================================================
 # Elero Supported Device Classes

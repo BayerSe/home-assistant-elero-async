@@ -73,7 +73,9 @@
                     "stop_bits": "Stoppbits",
                     "timeout": "Timeout (Sekunden)",
                     "regular_interval": "Normales Abfrageintervall (Sek.)",
-                    "fast_interval": "Schnelles Abfrageintervall (Sek.)"
+                    "fast_interval": "Schnelles Abfrageintervall (Sek.)",
+                    "disable_regular_interval": "Normales Intervall deaktivieren",
+                    "disable_fast_interval": "Schnelles Intervall deaktivieren"
                 }
             }
         }
