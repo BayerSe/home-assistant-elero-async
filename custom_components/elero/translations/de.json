@@ -72,8 +72,8 @@
                     "parity": "Parität",
                     "stop_bits": "Stoppbits",
                     "timeout": "Timeout (Sekunden)",
-                    "regular_interval": "Normales Abfrageintervall (Sek.)",
-                    "fast_interval": "Schnelles Abfrageintervall (Sek.)"
+                    "regular_interval": "Normales Abfrageintervall (Sek., 0 = deaktiviert)",
+                    "fast_interval": "Schnelles Abfrageintervall (Sek., 0 = deaktiviert)"
                 }
             }
         }

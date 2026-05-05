@@ -91,7 +91,11 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
             _LOGGER,
             name="Elero",
             update_method=self._async_update_data,
-            update_interval=timedelta(seconds=self._regular_interval_seconds),
+            update_interval=(
+                None
+                if self._regular_interval_seconds <= 0
+                else timedelta(seconds=self._regular_interval_seconds)
+            ),
         )
 
     async def connect(self) -> None:
@@ -160,11 +164,15 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
             serial_no = self.transmitter.get_serial_number()
             channels = self.transmitter.get_learned_channels()
 
-            should_fetch_all = (
-                self._last_full_update is None
-                or now() - self._last_full_update >= timedelta(seconds=self._regular_interval_seconds)
-                or not self._fast_channels
+            regular_interval_due = (
+                self._regular_interval_seconds > 0
+                and (
+                    self._last_full_update is None
+                    or now() - self._last_full_update
+                    >= timedelta(seconds=self._regular_interval_seconds)
+                )
             )
+            should_fetch_all = regular_interval_due or not self._fast_channels
 
             channels_to_fetch = channels if should_fetch_all else self._fast_channels
 
@@ -229,7 +237,11 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
         """Switch the update interval to FAST_INTERVAL for rapid polling.
 
         Called when at least one channel requires fast updates (e.g., while moving).
+        Does nothing when the fast interval is disabled (``fast_interval_seconds <= 0``).
         """
+        if self._fast_interval_seconds <= 0:
+            _LOGGER.debug("Fast update interval is disabled; keeping current interval.")
+            return
         fast_interval = timedelta(seconds=self._fast_interval_seconds)
         if self.update_interval != fast_interval:
             self.update_interval = fast_interval
@@ -238,8 +250,15 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
     def _register_regular_request(self) -> None:
         """Switch the update interval to REGULAR_INTERVAL for normal polling.
 
-        Called when no channels require fast updates.
+        Called when no channels require fast updates. Sets the interval to
+        ``None`` (disabling automatic polling) when the regular interval is
+        disabled (``regular_interval_seconds <= 0``).
         """
+        if self._regular_interval_seconds <= 0:
+            if self.update_interval is not None:
+                self.update_interval = None
+                _LOGGER.debug("Regular polling disabled; automatic polling paused.")
+            return
         regular_interval = timedelta(seconds=self._regular_interval_seconds)
         if self.update_interval != regular_interval:
             self.update_interval = regular_interval
@@ -326,11 +345,16 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
             # Restart the coordinator to apply new settings
             await self.async_refresh()
 
-        if regular_interval_changed or fast_interval_changed:
+        polling_settings_changed = regular_interval_changed or fast_interval_changed
+        if polling_settings_changed:
             self._regular_interval_seconds = new_regular_interval
             self._fast_interval_seconds = new_fast_interval
             _LOGGER.info("Elero polling intervals updated via options.")
 
             # Apply the updated regular interval immediately if not in fast mode
             if not self._fast_channels:
-                self.update_interval = timedelta(seconds=self._regular_interval_seconds)
+                self.update_interval = (
+                    None
+                    if self._regular_interval_seconds <= 0
+                    else timedelta(seconds=self._regular_interval_seconds)
+                )
