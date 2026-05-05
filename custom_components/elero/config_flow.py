@@ -48,11 +48,15 @@ from custom_components.elero.const import (
     BYTE_SIZE,
     CONF_BAUD_RATE,
     CONF_BYTE_SIZE,
+    CONF_FAST_INTERVAL,
     CONF_PARITY,
+    CONF_REGULAR_INTERVAL,
     CONF_STOP_BITS,
     DOMAIN,
     ELERO_COVER_DEVICE_CLASSES,
+    FAST_INTERVAL_SECONDS,
     PARITY,
+    REGULAR_INTERVAL_SECONDS,
     STOP_BITS,
     SUPPORTED_FEATURES,
     COMMAND_TIMEOUT,
@@ -82,6 +86,8 @@ OPTIONS_SCHEMA = vol.Schema(
         vol.Optional(CONF_BYTE_SIZE, default=BYTE_SIZE): int,
         vol.Optional(CONF_PARITY, default=PARITY): str,
         vol.Optional(CONF_STOP_BITS, default=STOP_BITS): int,
+        vol.Optional(CONF_REGULAR_INTERVAL, default=REGULAR_INTERVAL_SECONDS): int,
+        vol.Optional(CONF_FAST_INTERVAL, default=FAST_INTERVAL_SECONDS): int,
     }
 )
 
@@ -508,6 +514,20 @@ class EleroOptionsFlowHandler(OptionsFlow):
                         CONF_TIMEOUT,
                         default=options.get(
                             CONF_TIMEOUT, data.get(CONF_TIMEOUT, COMMAND_TIMEOUT)
+                        ),
+                    ): int,
+                    vol.Optional(
+                        CONF_REGULAR_INTERVAL,
+                        default=options.get(
+                            CONF_REGULAR_INTERVAL,
+                            data.get(CONF_REGULAR_INTERVAL, REGULAR_INTERVAL_SECONDS),
+                        ),
+                    ): int,
+                    vol.Optional(
+                        CONF_FAST_INTERVAL,
+                        default=options.get(
+                            CONF_FAST_INTERVAL,
+                            data.get(CONF_FAST_INTERVAL, FAST_INTERVAL_SECONDS),
                         ),
                     ): int,
                 }

@@ -71,7 +71,9 @@
                     "byte_size": "Datenbits",
                     "parity": "Parität",
                     "stop_bits": "Stoppbits",
-                    "timeout": "Timeout (Sekunden)"
+                    "timeout": "Timeout (Sekunden)",
+                    "regular_interval": "Normales Abfrageintervall (Sek.)",
+                    "fast_interval": "Schnelles Abfrageintervall (Sek.)"
                 }
             }
         }

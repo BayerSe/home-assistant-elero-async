@@ -71,7 +71,9 @@
                     "byte_size": "Byte Size",
                     "parity": "Parity",
                     "stop_bits": "Stop Bits",
-                    "timeout": "Command Timeout (sec.)"
+                    "timeout": "Command Timeout (sec.)",
+                    "regular_interval": "Regular Poll Interval (sec.)",
+                    "fast_interval": "Fast Poll Interval (sec.)"
                 }
             }
         }

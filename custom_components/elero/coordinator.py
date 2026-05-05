@@ -4,7 +4,7 @@ Elero Data Update Coordinator for Home Assistant
 
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -13,10 +13,12 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_ADDRESS, CONF_TIMEOUT
 from custom_components.elero.command.command_queue import CommandQueue
 from custom_components.elero.const import (
-    FAST_INTERVAL,
-    REGULAR_INTERVAL,
+    FAST_INTERVAL_SECONDS,
+    REGULAR_INTERVAL_SECONDS,
     CONF_BAUD_RATE,
     CONF_BYTE_SIZE,
+    CONF_FAST_INTERVAL,
+    CONF_REGULAR_INTERVAL,
     CONF_STOP_BITS,
     CONF_PARITY,
 )
@@ -70,6 +72,14 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
         self._stop_bits: int = self._config_entry.options.get(
             CONF_STOP_BITS, self._config_entry.data.get(CONF_STOP_BITS)
         )
+        self._regular_interval_seconds: int = self._config_entry.options.get(
+            CONF_REGULAR_INTERVAL,
+            self._config_entry.data.get(CONF_REGULAR_INTERVAL, REGULAR_INTERVAL_SECONDS),
+        )
+        self._fast_interval_seconds: int = self._config_entry.options.get(
+            CONF_FAST_INTERVAL,
+            self._config_entry.data.get(CONF_FAST_INTERVAL, FAST_INTERVAL_SECONDS),
+        )
         self.transmitter: EleroTransmitter | None = None
         self._command_queue = CommandQueue()
         self._fast_channels: list[int] = []
@@ -81,7 +91,7 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
             _LOGGER,
             name="Elero",
             update_method=self._async_update_data,
-            update_interval=REGULAR_INTERVAL,
+            update_interval=timedelta(seconds=self._regular_interval_seconds),
         )
 
     async def connect(self) -> None:
@@ -152,7 +162,7 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
 
             should_fetch_all = (
                 self._last_full_update is None
-                or now() - self._last_full_update >= REGULAR_INTERVAL
+                or now() - self._last_full_update >= timedelta(seconds=self._regular_interval_seconds)
                 or not self._fast_channels
             )
 
@@ -220,8 +230,9 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
 
         Called when at least one channel requires fast updates (e.g., while moving).
         """
-        if self.update_interval != FAST_INTERVAL:
-            self.update_interval = FAST_INTERVAL
+        fast_interval = timedelta(seconds=self._fast_interval_seconds)
+        if self.update_interval != fast_interval:
+            self.update_interval = fast_interval
             _LOGGER.debug("Fast update interval set.")
 
     def _register_regular_request(self) -> None:
@@ -229,8 +240,9 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
 
         Called when no channels require fast updates.
         """
-        if self.update_interval != REGULAR_INTERVAL:
-            self.update_interval = REGULAR_INTERVAL
+        regular_interval = timedelta(seconds=self._regular_interval_seconds)
+        if self.update_interval != regular_interval:
+            self.update_interval = regular_interval
             _LOGGER.debug("Regular update interval set.")
 
     def _moving_channels(
@@ -277,12 +289,21 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
         new_byte_size = entry.options.get(CONF_BYTE_SIZE, self._byte_size)
         new_parity = entry.options.get(CONF_PARITY, self._parity)
         new_timeout = entry.options.get(CONF_TIMEOUT, self._timeout)
+        new_regular_interval = entry.options.get(
+            CONF_REGULAR_INTERVAL, self._regular_interval_seconds
+        )
+        new_fast_interval = entry.options.get(
+            CONF_FAST_INTERVAL, self._fast_interval_seconds
+        )
 
         baud_rate_changed = new_baud_rate != self._baud_rate
         stop_bits_changed = new_stop_bits != self._stop_bits
         byte_size_changed = new_byte_size != self._byte_size
         parity_changed = new_parity != self._parity
         timeout_changed = new_timeout != self._timeout
+        regular_interval_changed = new_regular_interval != self._regular_interval_seconds
+        fast_interval_changed = new_fast_interval != self._fast_interval_seconds
+
         if (
             baud_rate_changed
             or stop_bits_changed
@@ -304,3 +325,12 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
 
             # Restart the coordinator to apply new settings
             await self.async_refresh()
+
+        if regular_interval_changed or fast_interval_changed:
+            self._regular_interval_seconds = new_regular_interval
+            self._fast_interval_seconds = new_fast_interval
+            _LOGGER.info("Elero polling intervals updated via options.")
+
+            # Apply the updated regular interval immediately if not in fast mode
+            if not self._fast_channels:
+                self.update_interval = timedelta(seconds=self._regular_interval_seconds)

@@ -30,8 +30,10 @@ COMMAND_TIMEOUT: Final[float] = 5
 # =============================================================================
 # Coordinator Update
 # =============================================================================
-REGULAR_INTERVAL = timedelta(seconds=30)
-FAST_INTERVAL = timedelta(seconds=2)
+REGULAR_INTERVAL_SECONDS: Final[int] = 30
+FAST_INTERVAL_SECONDS: Final[int] = 2
+REGULAR_INTERVAL = timedelta(seconds=REGULAR_INTERVAL_SECONDS)
+FAST_INTERVAL = timedelta(seconds=FAST_INTERVAL_SECONDS)
 
 # =============================================================================
 # Elero states that are exposed by HA Covers
@@ -64,6 +66,8 @@ CONF_BAUD_RATE: Final = "baud_rate"
 CONF_BYTE_SIZE: Final = "byte_size"
 CONF_PARITY: Final = "parity"
 CONF_STOP_BITS: Final = "stop_bits"
+CONF_REGULAR_INTERVAL: Final = "regular_interval"
+CONF_FAST_INTERVAL: Final = "fast_interval"
 
 # =============================================================================
 # Elero Supported Device Classes
