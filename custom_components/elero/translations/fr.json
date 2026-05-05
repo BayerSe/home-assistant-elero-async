@@ -72,10 +72,8 @@
                     "parity": "Parité",
                     "stop_bits": "Bits d'arrêt",
                     "timeout": "Délai d'attente (secondes)",
-                    "regular_interval": "Intervalle de scrutation normal (s)",
-                    "fast_interval": "Intervalle de scrutation rapide (s)",
-                    "disable_regular_interval": "Désactiver l'interrogation à intervalle normal",
-                    "disable_fast_interval": "Désactiver l'interrogation à intervalle rapide"
+                    "regular_interval": "Intervalle de scrutation normal (s, 0 = désactivé)",
+                    "fast_interval": "Intervalle de scrutation rapide (s, 0 = désactivé)"
                 }
             }
         }

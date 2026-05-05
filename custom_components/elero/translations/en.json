@@ -72,10 +72,8 @@
                     "parity": "Parity",
                     "stop_bits": "Stop Bits",
                     "timeout": "Command Timeout (sec.)",
-                    "regular_interval": "Regular Poll Interval (sec.)",
-                    "fast_interval": "Fast Poll Interval (sec.)",
-                    "disable_regular_interval": "Disable regular interval polling",
-                    "disable_fast_interval": "Disable fast interval polling"
+                    "regular_interval": "Regular Poll Interval (sec., 0 = disabled)",
+                    "fast_interval": "Fast Poll Interval (sec., 0 = disabled)"
                 }
             }
         }
