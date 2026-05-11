@@ -49,12 +49,15 @@ from custom_components.elero.const import (
     CONF_BAUD_RATE,
     CONF_BYTE_SIZE,
     CONF_FAST_INTERVAL,
+    CONF_LOG_LEVEL,
     CONF_PARITY,
     CONF_REGULAR_INTERVAL,
     CONF_STOP_BITS,
+    DEFAULT_LOG_LEVEL,
     DOMAIN,
     ELERO_COVER_DEVICE_CLASSES,
     FAST_INTERVAL_SECONDS,
+    LOG_LEVEL_OPTIONS,
     PARITY,
     REGULAR_INTERVAL_SECONDS,
     STOP_BITS,
@@ -530,6 +533,16 @@ class EleroOptionsFlowHandler(OptionsFlow):
                             data.get(CONF_FAST_INTERVAL, FAST_INTERVAL_SECONDS),
                         ),
                     ): int,
+                    vol.Optional(
+                        CONF_LOG_LEVEL,
+                        default=options.get(CONF_LOG_LEVEL, DEFAULT_LOG_LEVEL),
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=list(LOG_LEVEL_OPTIONS),
+                            translation_key="log_level",
+                            mode=SelectSelectorMode.DROPDOWN,
+                        )
+                    ),
                 }
             ),
         )

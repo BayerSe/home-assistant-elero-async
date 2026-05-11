@@ -6,11 +6,31 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.const import EVENT_HOMEASSISTANT_STOP, Platform, CONF_ADDRESS
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
-from custom_components.elero.const import DOMAIN
+from custom_components.elero.const import (
+    CONF_LOG_LEVEL,
+    DEFAULT_LOG_LEVEL,
+    DOMAIN,
+    LOG_LEVEL_OPTIONS,
+)
 from custom_components.elero.coordinator import EleroDataUpdateCoordinator
 from custom_components.elero.transmitter.transmitter import TransmitterConnectionError
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _apply_log_level(entry: ConfigEntry) -> None:
+    """Apply the configured integration log level."""
+    log_level = str(entry.options.get(CONF_LOG_LEVEL, DEFAULT_LOG_LEVEL)).lower()
+    if log_level not in LOG_LEVEL_OPTIONS:
+        _LOGGER.warning(
+            "Invalid Elero log level '%s' for entry '%s'; using '%s'",
+            log_level,
+            entry.title,
+            DEFAULT_LOG_LEVEL,
+        )
+        log_level = DEFAULT_LOG_LEVEL
+    logger = logging.getLogger(f"custom_components.{DOMAIN}")
+    logger.setLevel(getattr(logging, log_level.upper()))
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -27,6 +47,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         bool: True if setup was successful, False otherwise.
     """
 
+    _apply_log_level(entry)
     _LOGGER.debug("Starting setup of the Elero integration")
 
     _LOGGER.debug(
@@ -37,6 +58,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         list(entry.data.keys()),
     )
 
+    _LOGGER.info("Setting up Elero integration entry '%s'", entry.title)
     coordinator = EleroDataUpdateCoordinator(hass, entry)
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
 
@@ -47,6 +69,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     except TransmitterConnectionError as err:
         _LOGGER.error("Failed to set up Elero integration: %s", err)
         return False
+    _LOGGER.info("Connected Elero transmitter for entry '%s'", entry.title)
 
     try:
         await hass.config_entries.async_forward_entry_setups(entry, [Platform.COVER])
@@ -79,6 +102,8 @@ async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
         entry (ConfigEntry): The configuration entry being updated.
     """
     coordinator = hass.data[DOMAIN][entry.entry_id]
+    _apply_log_level(entry)
+    _LOGGER.info("Applying updated options for Elero entry '%s'", entry.title)
     await coordinator.async_config_entry_updated(entry)
 
 
@@ -95,6 +120,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     Returns:
         bool: True if the unload was successful, False otherwise.
     """
+    _LOGGER.info("Unloading Elero integration entry '%s'", entry.title)
     unload_ok = await hass.config_entries.async_unload_platforms(
         entry, [Platform.COVER]
     )
@@ -102,4 +128,5 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         coordinator = hass.data[DOMAIN].pop(entry.entry_id, None)
         if coordinator:
             await coordinator.disconnect()
+        _LOGGER.info("Elero integration entry '%s' unloaded", entry.title)
     return unload_ok

@@ -73,7 +73,8 @@
                     "stop_bits": "Bits d'arrêt",
                     "timeout": "Délai d'attente (secondes)",
                     "regular_interval": "Intervalle de scrutation normal (s, 0 = désactivé)",
-                    "fast_interval": "Intervalle de scrutation rapide (s, 0 = désactivé)"
+                    "fast_interval": "Intervalle de scrutation rapide (s, 0 = désactivé)",
+                    "log_level": "Niveau de journalisation"
                 }
             }
         }
@@ -96,6 +97,15 @@
                 "blind": "Store vénitien",
                 "shade": "Store",
                 "shutter": "Volet roulant"
+            }
+        },
+        "log_level": {
+            "options": {
+                "debug": "Débogage",
+                "info": "Info",
+                "warning": "Avertissement",
+                "error": "Erreur",
+                "critical": "Critique"
             }
         }
     },

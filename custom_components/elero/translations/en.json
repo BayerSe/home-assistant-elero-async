@@ -73,7 +73,8 @@
                     "stop_bits": "Stop Bits",
                     "timeout": "Command Timeout (sec.)",
                     "regular_interval": "Regular Poll Interval (sec., 0 = disabled)",
-                    "fast_interval": "Fast Poll Interval (sec., 0 = disabled)"
+                    "fast_interval": "Fast Poll Interval (sec., 0 = disabled)",
+                    "log_level": "Log Level"
                 }
             }
         }
@@ -96,6 +97,15 @@
                 "blind": "Blind",
                 "shade": "Shade",
                 "shutter": "Shutter"
+            }
+        },
+        "log_level": {
+            "options": {
+                "debug": "Debug",
+                "info": "Info",
+                "warning": "Warning",
+                "error": "Error",
+                "critical": "Critical"
             }
         }
     },
