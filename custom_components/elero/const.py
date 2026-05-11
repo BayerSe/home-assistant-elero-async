@@ -68,6 +68,15 @@ CONF_PARITY: Final = "parity"
 CONF_STOP_BITS: Final = "stop_bits"
 CONF_REGULAR_INTERVAL: Final = "regular_interval"
 CONF_FAST_INTERVAL: Final = "fast_interval"
+CONF_LOG_LEVEL: Final = "log_level"
+DEFAULT_LOG_LEVEL: Final[str] = "info"
+LOG_LEVEL_OPTIONS: Final[tuple[str, ...]] = (
+    "debug",
+    "info",
+    "warning",
+    "error",
+    "critical",
+)
 
 # =============================================================================
 # Elero Supported Device Classes

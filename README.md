@@ -47,11 +47,10 @@ You can use as many **Elero USB Transmitter Sticks** as needed to control more t
 
 The setup process guides through all configured channels of the attached transmitter, where the device class and the supported features of a given channel can be configured.
 
-To see integration logs, set the logger level in the Home Assistant UI:
+To see integration logs, configure the log level in the integration options:
 
-1. Go to **Settings → System → Logs**.
-2. Click **Set log level**.
-3. Set `custom_components.elero` to `info` or `debug`.
+1. Go to **Settings → Devices & Services → Elero → Configure**.
+2. Set **Log Level** (for example `info` or `debug`).
 
 You should see lines like:
 
@@ -307,4 +306,3 @@ if __name__ == "__main__":
 ## Homeassistant configuration of remote transmitters
 
 The remote transmitters can be configured by adding its address in the UI guided setup process ex. 192.168.10.29:20109. In that case the settings for the baudrate etc. can be ignored.
-
