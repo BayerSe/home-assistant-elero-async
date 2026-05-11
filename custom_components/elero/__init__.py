@@ -6,7 +6,12 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.const import EVENT_HOMEASSISTANT_STOP, Platform, CONF_ADDRESS
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
-from custom_components.elero.const import CONF_LOG_LEVEL, DEFAULT_LOG_LEVEL, DOMAIN
+from custom_components.elero.const import (
+    CONF_LOG_LEVEL,
+    DEFAULT_LOG_LEVEL,
+    DOMAIN,
+    LOG_LEVEL_OPTIONS,
+)
 from custom_components.elero.coordinator import EleroDataUpdateCoordinator
 from custom_components.elero.transmitter.transmitter import TransmitterConnectionError
 
@@ -15,14 +20,18 @@ _LOGGER = logging.getLogger(__name__)
 
 def _apply_log_level(entry: ConfigEntry) -> None:
     """Apply the configured integration log level."""
-    log_level = entry.options.get(CONF_LOG_LEVEL, DEFAULT_LOG_LEVEL)
+    log_level = str(entry.options.get(CONF_LOG_LEVEL, DEFAULT_LOG_LEVEL)).lower()
+    if log_level not in LOG_LEVEL_OPTIONS:
+        _LOGGER.warning(
+            "Invalid Elero log level '%s' for entry '%s'; using '%s'",
+            log_level,
+            entry.title,
+            DEFAULT_LOG_LEVEL,
+        )
+        log_level = DEFAULT_LOG_LEVEL
+    _LOGGER.info("Applying Elero log level '%s' for entry '%s'", log_level, entry.title)
     logger = logging.getLogger(f"custom_components.{DOMAIN}")
-    logger.setLevel(getattr(logging, str(log_level).upper(), logging.INFO))
-    _LOGGER.info(
-        "Elero log level set to '%s' for entry '%s'",
-        str(log_level).lower(),
-        entry.title,
-    )
+    logger.setLevel(getattr(logging, log_level.upper()))
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
