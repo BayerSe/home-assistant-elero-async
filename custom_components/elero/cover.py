@@ -266,7 +266,18 @@ class EleroCover(CoordinatorEntity[EleroDataUpdateCoordinator], CoverEntity):
                 :func:`CommandUtil.get_requested_position`).
         """
         if not self._transmitter:
+            _LOGGER.debug(
+                "Skipping command %s for channel %s because transmitter is unavailable",
+                command_type,
+                self._channel,
+            )
             return
+        _LOGGER.debug(
+            "Sending command %s to channel %s (requested_position=%s)",
+            command_type,
+            self._channel,
+            req_position,
+        )
         await self._transmitter.async_change_request_command(
             self._channel, command_type
         )
@@ -277,6 +288,7 @@ class EleroCover(CoordinatorEntity[EleroDataUpdateCoordinator], CoverEntity):
         )
         self.coordinator.register_fast_channel(self._channel)
         await self.coordinator.async_request_refresh()
+        _LOGGER.debug("Command %s applied to channel %s", command_type, self._channel)
 
     async def _async_update_cover(self, position: int | None) -> None:
         """Move the cover to an absolute position.
@@ -295,6 +307,13 @@ class EleroCover(CoordinatorEntity[EleroDataUpdateCoordinator], CoverEntity):
         )
         req_position = position if position is not None else POSITION_OPEN
         cmd = CommandType.UP if req_position > current_pos else CommandType.DOWN
+        _LOGGER.debug(
+            "Moving channel %s from position %s to %s using %s",
+            self._channel,
+            current_pos,
+            req_position,
+            cmd,
+        )
         await self._async_update_cover_cmd(command_type=cmd, req_position=position)
 
     def _data_key(self) -> str:

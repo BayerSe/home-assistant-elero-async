@@ -104,6 +104,7 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
         Establishes a connection to the Elero transmitter using either a serial or Ser2Net configuration.
         Raises TransmitterConnectionError if the connection fails.
         """
+        _LOGGER.debug("Connecting to Elero transmitter at '%s'", self._address)
         if Ser2NetConnection.is_valid_url(self._address):
             ser2net_config = Ser2NetConfig(
                 address=self._address, serial_number=self.unique_id
@@ -129,6 +130,11 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
         if is_connected:
             await transmitter.async_check()
             self.transmitter = transmitter
+            _LOGGER.info(
+                "Connected to Elero transmitter '%s' with %s learned channels",
+                self.unique_id,
+                len(transmitter.get_learned_channels()),
+            )
         else:
             _LOGGER.error("Failed to connect to Elero transmitter")
             raise TransmitterConnectionError("Failed to connect to Elero transmitter")
@@ -141,6 +147,7 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
         if not self.transmitter:
             return None
 
+        _LOGGER.debug("Disconnecting Elero transmitter '%s'", self.unique_id)
         await self.transmitter.async_close()
         self.transmitter = None
 
@@ -163,6 +170,11 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
             data: dict[str, CoverStateData] = {}
             serial_no = self.transmitter.get_serial_number()
             channels = self.transmitter.get_learned_channels()
+            _LOGGER.debug(
+                "Refreshing Elero state for transmitter '%s' (%s channels)",
+                serial_no,
+                len(channels),
+            )
 
             regular_interval_due = (
                 self._regular_interval_seconds > 0
@@ -178,6 +190,10 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
 
             info_results = await asyncio.gather(
                 *(self.transmitter.async_info(channel) for channel in channels_to_fetch)
+            )
+            _LOGGER.debug(
+                "Fetched Elero info for channels: %s",
+                channels_to_fetch,
             )
 
             for channel, info_result in zip(channels_to_fetch, info_results):
@@ -201,6 +217,7 @@ class EleroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, CoverStateData]
             return self._data_cache
 
         except Exception as err:
+            _LOGGER.error("Coordinator update failed for '%s': %s", self.unique_id, err)
             raise UpdateFailed(f"Error updating Elero data: {err}") from err
 
     def register_fast_channel(self, channel_nr: int) -> None:

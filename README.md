@@ -47,19 +47,19 @@ You can use as many **Elero USB Transmitter Sticks** as needed to control more t
 
 The setup process guides through all configured channels of the attached transmitter, where the device class and the supported features of a given channel can be configured.
 
-Make sure you have the logger set to the INFO level to see the log message. You can do this by adding following to the config file `configuration.yaml`:
+To see integration logs, set the logger level in the Home Assistant UI:
 
-```yaml
-logger:
-  default: info
-```
-Then you should see the following long line after a restart of HA:
+1. Go to **Settings → System → Logs**.
+2. Click **Set log level**.
+3. Set `custom_components.elero` to `info` or `debug`.
+
+Then restart Home Assistant. You should see lines like:
 
 ```
-Elero - an Elero Transmitter Stick is found on port: '<serial port>' with serial number: '<serial number>'.
+Connected to Elero transmitter '<serial number>' with <n> learned channels
 ```
 
-Make sure to disable the logger config again afterwards to avoid excessive logging!
+Use `debug` only for troubleshooting, since it can generate many log lines.
 
 The given serial number of a transmitter should be used to match a HA channel to the transmitter in the yaml config file.
 
@@ -307,6 +307,5 @@ if __name__ == "__main__":
 ## Homeassistant configuration of remote transmitters
 
 The remote transmitters can be configured by adding its address in the UI guided setup process ex. 192.168.10.29:20109. In that case the settings for the baudrate etc. can be ignored.
-
 
 

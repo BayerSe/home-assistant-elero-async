@@ -37,6 +37,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         list(entry.data.keys()),
     )
 
+    _LOGGER.info("Setting up Elero integration entry '%s'", entry.title)
     coordinator = EleroDataUpdateCoordinator(hass, entry)
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
 
@@ -47,6 +48,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     except TransmitterConnectionError as err:
         _LOGGER.error("Failed to set up Elero integration: %s", err)
         return False
+    _LOGGER.info("Connected Elero transmitter for entry '%s'", entry.title)
 
     try:
         await hass.config_entries.async_forward_entry_setups(entry, [Platform.COVER])
@@ -79,6 +81,7 @@ async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
         entry (ConfigEntry): The configuration entry being updated.
     """
     coordinator = hass.data[DOMAIN][entry.entry_id]
+    _LOGGER.info("Applying updated options for Elero entry '%s'", entry.title)
     await coordinator.async_config_entry_updated(entry)
 
 
@@ -95,6 +98,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     Returns:
         bool: True if the unload was successful, False otherwise.
     """
+    _LOGGER.info("Unloading Elero integration entry '%s'", entry.title)
     unload_ok = await hass.config_entries.async_unload_platforms(
         entry, [Platform.COVER]
     )
@@ -102,4 +106,5 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         coordinator = hass.data[DOMAIN].pop(entry.entry_id, None)
         if coordinator:
             await coordinator.disconnect()
+        _LOGGER.info("Elero integration entry '%s' unloaded", entry.title)
     return unload_ok
