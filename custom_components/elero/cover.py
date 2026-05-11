@@ -288,7 +288,11 @@ class EleroCover(CoordinatorEntity[EleroDataUpdateCoordinator], CoverEntity):
         )
         self.coordinator.register_fast_channel(self._channel)
         await self.coordinator.async_request_refresh()
-        _LOGGER.debug("Command %s applied to channel %s", command_type, self._channel)
+        _LOGGER.debug(
+            "Command %s sent and refresh requested for channel %s",
+            command_type,
+            self._channel,
+        )
 
     async def _async_update_cover(self, position: int | None) -> None:
         """Move the cover to an absolute position.

@@ -53,7 +53,7 @@ To see integration logs, set the logger level in the Home Assistant UI:
 2. Click **Set log level**.
 3. Set `custom_components.elero` to `info` or `debug`.
 
-Then restart Home Assistant. You should see lines like:
+You should see lines like:
 
 ```
 Connected to Elero transmitter '<serial number>' with <n> learned channels
@@ -307,5 +307,4 @@ if __name__ == "__main__":
 ## Homeassistant configuration of remote transmitters
 
 The remote transmitters can be configured by adding its address in the UI guided setup process ex. 192.168.10.29:20109. In that case the settings for the baudrate etc. can be ignored.
-
 
