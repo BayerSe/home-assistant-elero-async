@@ -29,7 +29,6 @@ def _apply_log_level(entry: ConfigEntry) -> None:
             DEFAULT_LOG_LEVEL,
         )
         log_level = DEFAULT_LOG_LEVEL
-    _LOGGER.info("Applying Elero log level '%s' for entry '%s'", log_level, entry.title)
     logger = logging.getLogger(f"custom_components.{DOMAIN}")
     logger.setLevel(getattr(logging, log_level.upper()))
 
